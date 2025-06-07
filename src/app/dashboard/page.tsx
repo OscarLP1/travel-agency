@@ -1,66 +1,101 @@
 'use client'
 
-import { UserButton, useUser } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
+import { Calendar, Clock, CreditCard } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
 
   if (!isLoaded) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome, {user?.firstName || 'User'}!
-            </h1>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-          
-          <div className="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Profile Section */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4">Profile</h2>
-                <p>Email: {user?.emailAddresses[0]?.emailAddress}</p>
-                <p>ID: {user?.id}</p>
-              </div>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Welcome back, {user?.firstName || 'User'}
+        </h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Here's what's happening with your account.
+        </p>
+      </div>
 
-              {/* Quick Actions */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-                <ul className="space-y-2">
-                  <li>
-                    <button className="text-blue-600 hover:text-blue-800">
-                      Book Appointment
-                    </button>
-                  </li>
-                  <li>
-                    <button className="text-blue-600 hover:text-blue-800">
-                      View History
-                    </button>
-                  </li>
-                  <li>
-                    <button className="text-blue-600 hover:text-blue-800">
-                      Update Profile
-                    </button>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Stats */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4">Stats</h2>
-                <div className="space-y-2">
-                  <p>Upcoming Appointments: 0</p>
-                  <p>Past Appointments: 0</p>
-                  <p>Total Spent: $0</p>
-                </div>
-              </div>
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <Calendar className="h-10 w-10 text-blue-500" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Upcoming Appointments</p>
+              <h3 className="text-2xl font-bold text-gray-900">0</h3>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <Clock className="h-10 w-10 text-green-500" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Active Bookings</p>
+              <h3 className="text-2xl font-bold text-gray-900">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <CreditCard className="h-10 w-10 text-purple-500" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Spent</p>
+              <h3 className="text-2xl font-bold text-gray-900">$0.00</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link 
+            href="/dashboard/appointments"
+            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:border-blue-500 transition-colors"
+          >
+            <h3 className="text-base font-semibold text-gray-900">View Appointments</h3>
+            <p className="mt-1 text-sm text-gray-600">Check your upcoming and past appointments</p>
+          </Link>
+
+          <Link 
+            href="/dashboard/bookings"
+            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:border-blue-500 transition-colors"
+          >
+            <h3 className="text-base font-semibold text-gray-900">Manage Bookings</h3>
+            <p className="mt-1 text-sm text-gray-600">View and manage your travel bookings</p>
+          </Link>
+
+          <Link 
+            href="/dashboard/profile"
+            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:border-blue-500 transition-colors"
+          >
+            <h3 className="text-base font-semibold text-gray-900">Update Profile</h3>
+            <p className="mt-1 text-sm text-gray-600">Keep your information up to date</p>
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+          <div className="p-4 text-center text-gray-500">
+            No recent activity to show
           </div>
         </div>
       </div>
