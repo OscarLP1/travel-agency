@@ -1,45 +1,91 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import Image from 'next/image'
 import { Calendar, Users, Star, Clock, MapPin } from 'lucide-react'
+import { getDestinationBySlug } from '@/lib/supabase/booking-management'
 
 export default function DestinationPage({ params }: { params: { slug: string } }) {
+  const router = useRouter()
+  const { user, isLoaded } = useUser()
   const [selectedTab, setSelectedTab] = useState('overview')
 
-  // Get destination info based on slug
-  const getDestinationInfo = (slug: string) => {
-    const destinations: Record<string, any> = {
-      'machu-picchu': {
-        name: 'Machu Picchu',
-        description: 'Ancient Incan citadel set high in the Andes Mountains',
-        image: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=80',
-        price: 299
-      },
-      'santorini': {
-        name: 'Santorini',
-        description: 'Beautiful Greek island with stunning sunsets',
-        image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=80',
-        price: 599
-      },
-      'tokyo': {
-        name: 'Tokyo',
-        description: 'Modern metropolis blending tradition and innovation',
-        image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80',
-        price: 799
+  const [destination, setDestination] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDestination = async () => {
+      try {
+        const destinationData = await getDestinationBySlug(params.slug)
+        if (destinationData) {
+          setDestination(destinationData)
+        } else {
+          // Fallback to static data if not found in database
+          const fallbackDestinations: Record<string, any> = {
+            'machu-picchu': {
+              id: '1',
+              name: 'Machu Picchu',
+              description: 'Ancient Incan citadel set high in the Andes Mountains',
+              image_url: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=80',
+              price: 299,
+              location: 'Peru',
+              duration: '2-3 days',
+              slug: 'machu-picchu'
+            }
+          }
+          setDestination(fallbackDestinations[params.slug] || fallbackDestinations['machu-picchu'])
+        }
+      } catch (error) {
+        console.error('Error fetching destination:', error)
+      } finally {
+        setLoading(false)
       }
     }
-    return destinations[slug] || destinations['machu-picchu']
+
+    fetchDestination()
+  }, [params.slug])
+
+  const handleBookNow = () => {
+    if (!isLoaded) return
+    
+    if (!user) {
+      // Redirect to sign in with return URL
+      router.push(`/sign-in?redirect_url=${encodeURIComponent(`/book/${params.slug}`)}`)
+    } else {
+      // User is authenticated, go to booking page
+      router.push(`/book/${params.slug}`)
+    }
   }
 
-  const destination = getDestinationInfo(params.slug)
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (!destination) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Destination not found</h1>
+          <a href="/destinations" className="text-blue-600 hover:text-blue-800">
+            Back to destinations
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full">
         <Image
-          src={destination.image}
+          src={destination.image_url}
           alt={destination.name}
           fill
           className="object-cover"
@@ -88,11 +134,11 @@ export default function DestinationPage({ params }: { params: { slug: string } }
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center">
                         <Clock className="h-5 w-5 text-gray-400 mr-2" />
-                        <span>Duration: 2-3 days</span>
+                        <span>Duration: {destination.duration || '2-3 days'}</span>
                       </div>
                       <div className="flex items-center">
                         <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                        <span>Location: Peru</span>
+                        <span>Location: {destination.location || 'Unknown'}</span>
                       </div>
                     </div>
                   </div>
@@ -187,8 +233,12 @@ export default function DestinationPage({ params }: { params: { slug: string } }
                   </div>
                 </div>
 
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                  Book Now
+                <button 
+                  onClick={handleBookNow}
+                  disabled={!isLoaded}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {!isLoaded ? 'Loading...' : user ? 'Book Now' : 'Sign In to Book'}
                 </button>
               </div>
             </div>
