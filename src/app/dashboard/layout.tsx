@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Home, User, Calendar, BookOpen, Settings, CreditCard } from 'lucide-react'
+import { useUserSync } from '@/hooks/useUserSync'
 
 const sidebarItems = [
   { name: 'Overview', href: '/dashboard', icon: Home },
@@ -19,6 +20,28 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const { isUserSynced, isLoading } = useUserSync()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700 mx-auto mb-4"></div>
+          <p className="text-gray-600">Setting up your account...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isUserSynced) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">Failed to sync user account. Please try refreshing the page.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

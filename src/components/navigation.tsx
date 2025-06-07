@@ -47,7 +47,14 @@ export function Navigation() {
                   >
                     Dashboard
                   </Link>
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "h-8 w-8"
+                      }
+                    }}
+                  />
                 </>
               ) : (
                 <>

@@ -7,13 +7,40 @@ import { Calendar, Users, Star, Clock, MapPin } from 'lucide-react'
 export default function DestinationPage({ params }: { params: { slug: string } }) {
   const [selectedTab, setSelectedTab] = useState('overview')
 
+  // Get destination info based on slug
+  const getDestinationInfo = (slug: string) => {
+    const destinations: Record<string, any> = {
+      'machu-picchu': {
+        name: 'Machu Picchu',
+        description: 'Ancient Incan citadel set high in the Andes Mountains',
+        image: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=80',
+        price: 299
+      },
+      'santorini': {
+        name: 'Santorini',
+        description: 'Beautiful Greek island with stunning sunsets',
+        image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=800&q=80',
+        price: 599
+      },
+      'tokyo': {
+        name: 'Tokyo',
+        description: 'Modern metropolis blending tradition and innovation',
+        image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80',
+        price: 799
+      }
+    }
+    return destinations[slug] || destinations['machu-picchu']
+  }
+
+  const destination = getDestinationInfo(params.slug)
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full">
         <Image
-          src="/machu-picchu.jpg"
-          alt="Machu Picchu"
+          src={destination.image}
+          alt={destination.name}
           fill
           className="object-cover"
           priority
@@ -21,8 +48,8 @@ export default function DestinationPage({ params }: { params: { slug: string } }
         <div className="absolute inset-0 bg-black/40">
           <div className="container mx-auto h-full flex items-end pb-12">
             <div className="text-white">
-              <h1 className="text-4xl font-bold mb-2">Machu Picchu</h1>
-              <p className="text-lg">Ancient Incan citadel set high in the Andes Mountains</p>
+              <h1 className="text-4xl font-bold mb-2">{destination.name}</h1>
+              <p className="text-lg">{destination.description}</p>
             </div>
           </div>
         </div>
@@ -56,8 +83,7 @@ export default function DestinationPage({ params }: { params: { slug: string } }
                 {selectedTab === 'overview' && (
                   <div className="space-y-4">
                     <p className="text-gray-600">
-                      Explore the magnificent ruins of Machu Picchu, an ancient Incan city set high in the Andes Mountains.
-                      This UNESCO World Heritage site offers breathtaking views and rich historical significance.
+                      Explore the magnificent ruins of {destination.name}. This UNESCO World Heritage site offers breathtaking views and rich historical significance.
                     </p>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center">
@@ -78,7 +104,7 @@ export default function DestinationPage({ params }: { params: { slug: string } }
                     <ul className="list-disc list-inside space-y-2 text-gray-600">
                       <li>Guided tour of the ancient ruins</li>
                       <li>Sunrise viewing opportunity</li>
-                      <li>Traditional Peruvian lunch</li>
+                      <li>Traditional local lunch</li>
                       <li>Professional photography spots</li>
                       <li>Local expert guides</li>
                     </ul>
@@ -153,11 +179,11 @@ export default function DestinationPage({ params }: { params: { slug: string } }
                 <div className="border-t pt-4 mt-4">
                   <div className="flex justify-between mb-2">
                     <span>Price per person</span>
-                    <span>$299</span>
+                    <span>${destination.price}</span>
                   </div>
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>$299</span>
+                    <span>${destination.price}</span>
                   </div>
                 </div>
 

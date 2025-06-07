@@ -1,19 +1,66 @@
 'use client'
 
 import { useUser } from "@clerk/nextjs"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { UserButton } from "@clerk/nextjs"
+import { getUserProfile, updateUserProfile } from "@/lib/supabase/user-management"
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser()
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState({
     phone: '',
     address: '',
     bio: ''
   })
 
-  if (!isLoaded) {
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user?.id) return
+
+      try {
+        const profile = await getUserProfile(user.id)
+        if (profile) {
+          setFormData({
+            phone: profile.phone || '',
+            address: profile.address || '',
+            bio: profile.bio || ''
+          })
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (isLoaded && user) {
+      loadUserProfile()
+    }
+  }, [user, isLoaded])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user?.id) return
+
+    setIsSaving(true)
+    try {
+      const updated = await updateUserProfile(user.id, formData)
+      if (updated) {
+        setIsEditing(false)
+        // Optional: Show success message
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      // Optional: Show error message
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (!isLoaded || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
@@ -56,12 +103,13 @@ export default function ProfilePage() {
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="text-sm text-blue-600 hover:text-blue-800"
+              disabled={isSaving}
             >
               {isEditing ? 'Cancel' : 'Edit'}
             </button>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700">Phone Number</label>
               {isEditing ? (
@@ -111,9 +159,10 @@ export default function ProfilePage() {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  disabled={isSaving}
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
-                  Save Changes
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             )}

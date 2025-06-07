@@ -6,15 +6,14 @@ export default authMiddleware({
     "/",
     "/sign-in(.*)",
     "/sign-up(.*)",
-    "/api/webhook",
     "/destinations",
+    "/destinations/(.*)",
     "/about",
     "/contact",
     "/blog",
     "/api/public(.*)",
   ],
   ignoredRoutes: [
-    "/api/webhook",
     "/_next/static/(.*)",
     "/favicon.ico",
   ]
