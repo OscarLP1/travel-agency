@@ -3,17 +3,17 @@
 ## Phase 1: Project Setup and Infrastructure (Week 1)
 
 ### Day 1-2: Initial Setup
-- [ ] Initialize Next.js project with TypeScript
-- [ ] Set up Tailwind CSS and shadcn/ui
-- [ ] Configure ESLint and Prettier
-- [ ] Set up Git repository and branching strategy
-- [ ] Create initial project structure
+- [ ] Initialize Next.js project with TypeScript --
+- [ ] Set up Tailwind CSS and shadcn/ui --
+- [ ] Configure ESLint and Prettier --
+- [ ] Set up Git repository and branching strategy --
+- [ ] Create initial project structure --
 
 ### Day 3-4: Authentication & Database
-- [ ] Set up Clerk authentication
-- [ ] Configure Supabase database
-- [ ] Create initial database schema
-- [ ] Implement authentication middleware
+- [x] Set up Clerk authentication --
+- [x] Configure Supabase database --
+- [x] Create initial database schema --
+- [x] Implement authentication middleware --
 - [ ] Set up environment variables
 
 ### Day 5: Development Environment

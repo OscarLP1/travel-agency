@@ -1,39 +1,73 @@
-import Link from 'next/link'
-import { Menu } from 'lucide-react'
+'use client'
 
-const menuItems = [
-  { label: "Destinations", href: "/destinations" },
-  { label: "Experiences", href: "/experiences" },
-  { label: "Deals", href: "/deals" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-]
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { UserButton, useUser } from '@clerk/nextjs'
 
 export function Navigation() {
+  const pathname = usePathname()
+  const { isSignedIn, isLoaded } = useUser()
+
+  const isActive = (path: string) => {
+    return pathname === path ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
+  }
+
   return (
-    <nav className="fixed left-0 right-0 top-0 z-50 bg-white/80 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-primary">
-          Adventure Travel
-        </Link>
-
-        {/* Desktop Menu */}
-        <div className="hidden items-center gap-8 md:flex">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
+    <nav className="bg-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <div className="flex-shrink-0 flex items-center">
+              <Link href="/" className="text-xl font-bold text-gray-800">
+                Adventure Travel
+              </Link>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <Link href="/" className={`inline-flex items-center px-1 pt-1 ${isActive('/')}`}>
+                Home
+              </Link>
+              <Link href="/destinations" className={`inline-flex items-center px-1 pt-1 ${isActive('/destinations')}`}>
+                Destinations
+              </Link>
+              <Link href="/about" className={`inline-flex items-center px-1 pt-1 ${isActive('/about')}`}>
+                About
+              </Link>
+              <Link href="/contact" className={`inline-flex items-center px-1 pt-1 ${isActive('/contact')}`}>
+                Contact
+              </Link>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            {isLoaded && (
+              isSignedIn ? (
+                <>
+                  <Link 
+                    href="/dashboard" 
+                    className={`inline-flex items-center px-3 py-2 rounded-md ${isActive('/dashboard')}`}
+                  >
+                    Dashboard
+                  </Link>
+                  <UserButton afterSignOutUrl="/" />
+                </>
+              ) : (
+                <>
+                  <Link 
+                    href="/sign-in" 
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    href="/sign-up"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 border-blue-600"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )
+            )}
+          </div>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button className="p-2 md:hidden">
-          <Menu className="h-6 w-6" />
-        </button>
       </div>
     </nav>
   )
